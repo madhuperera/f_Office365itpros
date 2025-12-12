@@ -24,14 +24,14 @@ ForEach ($User in $Users) {
        $P1 = "Traditional password"
      }
      "#microsoft.graph.microsoftAuthenticatorAuthenticationMethod" {
-       $DisplayMethod = "Authenticator" 
+       $DisplayMethod = "Microsoft Authenticator" 
        $P1 = $AuthMethod.AdditionalProperties['displayName']
        $P2 = $AuthMethod.AdditionalProperties['deviceTag'] + ": " + $AuthMethod.AdditionalProperties['clientAppName'] 
      }
      "#microsoft.graph.fido2AuthenticationMethod" {
-       $DisplayMethod = "Fido 2 Key"
+       $DisplayMethod = "Passkey"
        $P1 = $AuthMethod.AdditionalProperties['displayName']
-       $P2 = Get-Date($AuthMethod.AdditionalProperties['creationDateTime']) -format g
+       $P2 = If ($AuthMethod.AdditionalProperties['creationDateTime']) { Get-Date($AuthMethod.AdditionalProperties['creationDateTime']) -format g } Else { $Null }
      }
      "#microsoft.graph.phoneAuthenticationMethod" {
        $DisplayMethod = "Phone" 
@@ -43,9 +43,9 @@ ForEach ($User in $Users) {
       $P1 = "Address: " + $AuthMethod.AdditionalProperties['emailAddress']
      }
     "#microsoft.graph.passwordlessMicrosoftAuthenticatorAuthenticationMethod" {
-      $DisplayMethod = "Passwordless"
+      $DisplayMethod = "Microsoft Authentication Passwordless"
       $P1 = $AuthMethod.AdditionalProperties['displayName']
-      $P2 = Get-Date($AuthMethod.AdditionalProperties['creationDateTime']) -format g
+      $P2 = If ($AuthMethod.AdditionalProperties['creationDateTime']) { Get-Date($AuthMethod.AdditionalProperties['creationDateTime']) -format g } Else { $Null }
     }
      "Default" {
       $DisplayMethod = $Method
@@ -71,6 +71,8 @@ Write-Host ""
 $Report | Group-Object Method | Sort-Object Count -Descending | Select Name, Count
 
 $Report | Out-GridView
+
+$Report | Export-Csv -Path ".\ReportAuthenticationMethods.csv" -NoTypeInformation -Encoding UTF8
 
 # An example script used to illustrate a concept. More information about the topic can be found in the Office 365 for IT Pros eBook https://gum.co/O365IT/
 # and/or a relevant article on https://office365itpros.com or https://www.practical365.com. See our post about the Office 365 for IT Pros repository 
